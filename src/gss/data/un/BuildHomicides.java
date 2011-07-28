@@ -14,8 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import gss.GeoCache;
-import gss.Geocode;
+import gss.geo.LocationsCache;
+import gss.geo.Located;
 
 /**
  *
@@ -28,7 +28,7 @@ public class BuildHomicides {
     //  CSV: http://data.un.org/Handlers/DownloadHandler.ashx?DataFilter=tableCode:1&DataMartId=UNODC&Format=csv&c=2,3,5,7,9,11,12&s=countryName:asc,yr:desc
     
     
-    GeoCache geo = new GeoCache();
+    LocationsCache geo = new LocationsCache();
     private static final Logger logger = Logger.getLogger(BuildUSBqM3.class.toString());
 
     Map<String, Integer> countryYear = new HashMap();
@@ -90,7 +90,7 @@ public class BuildHomicides {
             
             
             
-            final Geocode g = geo.get(c);
+            final Located g = geo.get(c);
             if (g == null) {
                 logger.severe("Unable to geolocate: " + c);
                 continue;

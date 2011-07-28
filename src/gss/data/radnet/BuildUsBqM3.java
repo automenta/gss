@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import gss.GeoCache;
-import gss.Geocode;
+import gss.geo.LocationsCache;
+import gss.geo.Located;
 import gss.data.radnet.BuildUSBqM3;
 
 /**
@@ -26,7 +26,7 @@ public class BuildUsBqM3 {
     //http://data.un.org/Data.aspx?d=UNODC&f=tableCode%3a1
     //Rate is in Murders per 100,000 people
     
-    GeoCache geo = new GeoCache();
+    LocationsCache geo = new LocationsCache();
     private static final Logger logger = Logger.getLogger(BuildUSBqM3.class.toString());
 
     class Reading {
@@ -72,7 +72,7 @@ public class BuildUsBqM3 {
             r.date = date;
             r.rate = rate;
             
-            Geocode g = geo.get(city /*+ ", United States"*/);
+            Located g = geo.get(city /*+ ", United States"*/);
             r.lat = g.latitude;
             r.lng = g.longitude;                    
             
@@ -94,7 +94,7 @@ public class BuildUsBqM3 {
 //            
 //            
 //            
-//            final Geocode g = geo.get(c);
+//            final Located g = geo.get(c);
 //            if (g == null) {
 //                logger.severe("Unable to geolocate: " + c);
 //                continue;

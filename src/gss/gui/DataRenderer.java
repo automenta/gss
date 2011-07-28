@@ -16,6 +16,7 @@ import gov.nasa.worldwind.render.Polygon;
 import gov.nasa.worldwind.render.ShapeAttributes;
 import gov.nasa.worldwind.render.SurfaceCircle;
 import gss.Data;
+import gss.data.DataPoints;
 import gss.Event;
 import gss.Event.RadialEvent;
 import java.awt.Color;
@@ -26,9 +27,9 @@ import java.util.Iterator;
  *
  * @author seh
  */
-public abstract class DataRenderer {
+public abstract class DataRenderer<D extends Data> {
 
-    final public Data source;
+    final public D source;
     //double importance
     //boolean includeInHeatmap
     //boolean preNormalize
@@ -80,7 +81,7 @@ public abstract class DataRenderer {
         layer.addRenderable(pgon);
     }
 
-    public DataRenderer(Data source) {
+    public DataRenderer(D source) {
         super();
         this.source = source;
     }
@@ -96,10 +97,10 @@ public abstract class DataRenderer {
     
     abstract public void render();
     
-    public static class CylinderDataRenderer extends DataRenderer {
+    public static class CylinderDataRenderer extends DataRenderer<DataPoints> {
         private double scale;
                 
-        public CylinderDataRenderer(Data source, double scale) {
+        public CylinderDataRenderer(DataPoints source, double scale) {
             super(source);
             this.scale = scale;
             
@@ -107,6 +108,7 @@ public abstract class DataRenderer {
 
         @Override
         public void render() {
+            
             Iterator<Event> ie = source.iterateEvents();
             while (ie.hasNext()) {
                 Event e = ie.next();

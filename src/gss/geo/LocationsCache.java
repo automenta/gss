@@ -2,8 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package gss;
+package gss.geo;
 
+import gss.geo.Located;
+import gss.geo.PythonLocated;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -16,19 +18,19 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 /**
- * Caches the geo-coordinates of named geographic locations: String -> Geocode
+ * Caches the geo-coordinates of named geographic locations: String -> Located
  * Serializable to file
  * @author seh
  */
-public class GeoCache implements Serializable {
-    private static final Logger logger = Logger.getLogger(GeoCache.class.toString());
+public class LocationsCache implements Serializable {
+    private static final Logger logger = Logger.getLogger(LocationsCache.class.toString());
     
-    Map<String, Geocode> locations = new HashMap();
+    Map<String, Located> locations = new HashMap();
     
     public void load(String path)  {
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path));
-            GeoCache gc = (GeoCache)ois.readObject();
+            LocationsCache gc = (LocationsCache)ois.readObject();
             locations = gc.locations;
             logger.info("Loaded: " + locations.size() + " entries");
         }
@@ -46,12 +48,12 @@ public class GeoCache implements Serializable {
         oos.close();
     }
     
-    public Geocode get(String query) {
+    public Located get(String query) {
         if (locations.containsKey(query)) {
             return locations.get(query);
         }
         try {
-            Geocode g = new Geocode(query);
+            Located g = new PythonLocated(query);
             locations.put(query, g);
             return g;
         }

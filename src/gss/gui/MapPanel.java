@@ -8,6 +8,7 @@ import gov.nasa.worldwind.examples.ApplicationTemplate;
 import gov.nasa.worldwind.examples.ApplicationTemplate.AppPanel;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gss.Data;
+import gss.data.DataPoints;
 import gss.Environment;
 import gss.gui.DataRenderer.CylinderDataRenderer;
 import java.awt.BorderLayout;
@@ -27,7 +28,7 @@ public class MapPanel extends AppPanel {
         this.env = env;
         
         for (Data source : env.getSources("Crime")) {
-            addDataRenderer(new CylinderDataRenderer(source, 130.0));
+            addDataRenderer(new CylinderDataRenderer((DataPoints)source, 130.0));
         }
     }
 

@@ -12,15 +12,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import gss.GeoCache;
-import gss.Geocode;
+import gss.geo.LocationsCache;
+import gss.geo.Located;
 
 /**
  *
  * @author seh
  */
 public class BuildLifeExpectancy {
-    GeoCache geo = new GeoCache();
+    LocationsCache geo = new LocationsCache();
     private static final Logger logger = Logger.getLogger(BuildLifeExpectancy.class.toString());
 
     public BuildLifeExpectancy(String inputCSVpath, String outputPathAndPrefix) throws Exception {
@@ -73,7 +73,7 @@ public class BuildLifeExpectancy {
             
             
             
-            final Geocode g = geo.get(country);
+            final Located g = geo.get(country);
             if (g == null) {
                 logger.severe("Unable to geolocate: " + country);
                 continue;

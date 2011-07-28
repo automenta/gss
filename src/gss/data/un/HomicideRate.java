@@ -7,11 +7,11 @@ package gss.data.un;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
-import gss.Data.StaticData;
+import gss.data.DataPointsList;
 import gss.Event;
 import gss.Event.RadialEvent;
-import gss.GeoCache;
-import gss.Geocode;
+import gss.geo.LocationsCache;
+import gss.geo.Located;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  *
  * @author seh
  */
-public class HomicideRate extends StaticData {
+public class HomicideRate extends DataPointsList {
 
     private static final Logger logger = Logger.getLogger(HomicideRate.class.toString());
     //http://data.un.org/Data.aspx?d=UNODC&f=tableCode%3a1
@@ -34,7 +34,7 @@ public class HomicideRate extends StaticData {
     Map<String, Integer> countryYear = new HashMap();
     Map<String, Double> countryRate = new HashMap();
 
-    public HomicideRate(GeoCache geo, String csvPath) {
+    public HomicideRate(LocationsCache geo, String csvPath) {
         super("UN Murder Rate", "Crime", "gun.png", "Murders per 100,000 People");
 
         if (csvPath == null) {
@@ -88,7 +88,7 @@ public class HomicideRate extends StaticData {
                 int year = countryYear.get(c);
                 double rate = countryRate.get(c);
 
-                final Geocode g = geo.get(c);
+                final Located g = geo.get(c);
                 if (g == null) {
                     logger.severe("Unable to geolocate: " + c);
                     continue;

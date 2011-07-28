@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import gss.GeoCache;
-import gss.Geocode;
+import gss.geo.LocationsCache;
+import gss.geo.Located;
 
 /**
  *
@@ -41,11 +41,11 @@ public class BuildRadNet {
         //isotope -> concentration
         Map<String, Double> concentration = new HashMap();         
 
-        Geocode geo;
+        Located geo;
     }
     
     List<Sample> samples = new LinkedList();
-    GeoCache geo = new GeoCache();
+    LocationsCache geo = new LocationsCache();
     
     //parses date in mm/dd/yyyy format
     private Date parseDate(String d) throws ParseException {
@@ -107,7 +107,7 @@ public class BuildRadNet {
         
         for (Sample s : samples) {
             String address = s.location + ", " + s.state;
-            final Geocode g = geo.get(address);
+            final Located g = geo.get(address);
             if (g == null) {
                 logger.severe("Unable to geolocate: " + address);
                 continue;

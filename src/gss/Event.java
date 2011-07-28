@@ -7,10 +7,11 @@ package gss;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- *
+ * Measurement or observation of a feature, aspect, event, or phenomena that occurs in space-time.
  * @author seh
  */
 public interface Event {
@@ -29,7 +30,7 @@ public interface Event {
     /** a scalar measurement, in the units specified by the providing Data source */
     public double getMeasurement();
     
-    public class RadialEvent implements Event {
+    public class RadialEvent implements Event, Serializable {
         private double radius;
         private String label;
         private String description;
