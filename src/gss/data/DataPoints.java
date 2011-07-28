@@ -16,6 +16,8 @@ import java.util.Iterator;
  * @author seh
  */
 public abstract class DataPoints extends Data {
+    private boolean drawIcons = false;
+    private boolean drawLabels = false;
 
     public DataPoints(String name, String category, String iconURL, String unit) {
         this(null, name, category, iconURL, unit);
@@ -26,5 +28,25 @@ public abstract class DataPoints extends Data {
     }
 
     public abstract Iterator<Event> iterateEvents();
+
+    public boolean drawIcons() {
+        return drawIcons;
+    }
+
+    public boolean drawLabels() {
+        return drawLabels;
+    }
+
+    public void setDrawIcons(boolean drawIcons) {
+        this.drawIcons = drawIcons;
+    }
+
+    public void setDrawLabels(boolean drawLabels) {
+        this.drawLabels = drawLabels;
+    }
+    
+    
+    
+    
     
 }

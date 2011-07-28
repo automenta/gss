@@ -4,75 +4,101 @@
  */
 package gss.gui;
 
-import gov.nasa.worldwind.examples.ApplicationTemplate;
 import gov.nasa.worldwind.examples.ApplicationTemplate.AppPanel;
+import gov.nasa.worldwind.examples.analytics.AnalyticSurface;
+import gov.nasa.worldwind.examples.analytics.AnalyticSurface.GridPointAttributes;
+import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.Position;
+import gov.nasa.worldwind.geom.Sector;
+import gov.nasa.worldwind.layers.CompassLayer;
+import gov.nasa.worldwind.layers.Layer;
+import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
 import gss.Data;
 import gss.data.DataPoints;
 import gss.Environment;
-import gss.gui.DataRenderer.CylinderDataRenderer;
-import java.awt.BorderLayout;
+import gss.gui.DataRenderer.ShadedCircleRenderer;
 import java.awt.Dimension;
-import javax.swing.JFrame;
-import javax.swing.JSplitPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import javax.swing.Timer;
 
 /**
  *
  * @author seh
  */
 public class MapPanel extends AppPanel {
+    private final static Logger logger = Logger.getLogger(MapPanel.class.getName());
+    
     private final Environment env;
 
+    final Map<Data, DataRenderer> dataRenderers = new HashMap();
+    final Map<Data, RenderableLayer> dataLayers = new HashMap();
+    private final HeatMap heatMap;
+    
     public MapPanel(final Environment env, final Dimension d) {
         super(d, true);                        
         this.env = env;
         
-        for (Data source : env.getSources("Crime")) {
-            addDataRenderer(new CylinderDataRenderer((DataPoints)source, 130.0));
+        for (Data source : env.getSources()) {
+            if (source instanceof DataPoints)
+                addDataRenderer(new ShadedCircleRenderer((DataPoints)source, 130.0, 0, 300));
         }
+        
+        heatMap = new HeatMap(this);        
     }
-
+    
+    
+    public void insertBeforeCompass(Layer layer)     {
+        // Insert the layer into the layer list just before the compass.
+        int compassPosition = 0;
+        LayerList layers = getWwd().getModel().getLayers();
+        for (Layer l : layers)
+        {
+            if (l instanceof CompassLayer)
+                compassPosition = layers.indexOf(l);
+        }
+        layers.add(compassPosition, layer);
+    }
+    
     public void addDataRenderer(DataRenderer dr) {
         //TODO
         //dataRenderers.add(dr);
         
         dr.update();
         RenderableLayer layer = dr.getLayer();
-        ApplicationTemplate.insertBeforeCompass(getWwd(), layer);        
+        dataRenderers.put(dr.source, dr);
+        dataLayers.put(dr.source, layer);
+        insertBeforeCompass(layer);                
+    }
+        
+    public boolean isLayerEnabled(Data d) {
+        Layer l = dataLayers.get(d);
+        if (l!=null) {
+            return l.isEnabled();
+        }
+        return false;        
     }
     
-    public static void main(String[] args) {
-        final JFrame jf = new JFrame("Global Survival System");
-
-        final Environment env = new Environment();
-        
-        int mapWidth = 800;
-        int controlWidth = 200;
-        int height = 600;
-        
-        final Dimension s = new Dimension(mapWidth, height);
-        final MapPanel mp = new MapPanel(env, s);
-        
-        {
-            JSplitPane js = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-                       
-            ControlPanel cp = new ControlPanel(mp, env);           
-            
-            js.setLeftComponent(mp);
-            js.setRightComponent(cp);
-           
-            jf.getContentPane().setLayout(new BorderLayout());                    
-            jf.getContentPane().add(js, BorderLayout.CENTER);
-            jf.setSize(mapWidth + controlWidth, height);
-
-            js.setDividerLocation(mapWidth + 10);
-            
-            jf.getContentPane().doLayout();
+    public void setLayerEnabled(Data d, boolean enabled) {
+        Layer l = dataLayers.get(d);
+        if (l!=null) {
+            l.setEnabled(enabled);
         }
-                    
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jf.setVisible(true);
-                        
+        else {
+            logger.severe("Layer not found for Data " + d);
+        }
     }
+
+    void redraw() {
+        getWwd().redraw();
+    }
+
+    
     
 }

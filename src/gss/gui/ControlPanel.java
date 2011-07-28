@@ -6,7 +6,9 @@ package gss.gui;
 
 import gss.Data;
 import gss.Environment;
+import gss.gui.DataRenderer.ShadedCircleRenderer;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,14 +19,21 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JToggleButton;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -39,17 +48,65 @@ public class ControlPanel extends JPanel {
     final static int datasourceIconWidth = 25;
     final static int datasourceIconHeight = 25;
 
+    public static String getIconPath(String s) {
+        return "./media/icons/" + s;
+    }
+    
     public static ImageIcon getIcon(String s, int w, int h) throws MalformedURLException {
-        final URL u = new File("./media/icons/" + s).toURL();
+        final URL u = new File(getIconPath(s)).toURL();
         ImageIcon ii = new ImageIcon(new ImageIcon(u).getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH));
         return ii;
     }
+    
+    public static class JFloatSlider extends JSlider {
+
+        public final static int MAXRESOLUTION = 1000;
+        private final double maxValue;
+        private final double minValue;
+        private double dvalue;
         
+        public JFloatSlider(double value, double maxValue, double minValue, int orientation) {
+            super(orientation, 0, MAXRESOLUTION, 0);
+            
+            this.maxValue = maxValue;
+            this.minValue = minValue;
+                        
+            setDoubleValue((double)value);
+        }
+        
+        public int doubleToInt(double v) {
+            if (v > maxValue) v = maxValue;
+            if (v < minValue) v = minValue;
+            
+            return (int)((v - minValue) / (maxValue - minValue) * ((double)MAXRESOLUTION));
+        }
+        
+        public void setDoubleValue(double v) {
+            this.dvalue = v;
+            setValue(doubleToInt(dvalue));
+        }
+        
+        public double value() {
+            int v = getValue();
+            return (1.0 - ((double)v)/((double)MAXRESOLUTION)) * (maxValue - minValue) + minValue;
+        }
+        
+    }
+    private final MapPanel map;
+        
+    public static class HeatmapPanel extends JPanel {
+        
+    }
+    
     public static class DataSourcePanel extends JPanel {
 
-        public DataSourcePanel(Data ds) {
+        public DataSourcePanel(final MapPanel map, final Data ds) {
             super();
-            setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+            
+            BoxLayout bl = new BoxLayout(this, BoxLayout.PAGE_AXIS);
+            setLayout(bl);
+
+            setAlignmentX(LEFT_ALIGNMENT);
             
             JLabel l = new JLabel(ds.name);
             try {
@@ -58,6 +115,50 @@ public class ControlPanel extends JPanel {
                 Logger.getLogger(ControlPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
             add(l);
+            
+            DataRenderer dr = map.dataRenderers.get(ds);
+            if (dr instanceof ShadedCircleRenderer) {
+                final ShadedCircleRenderer scr = (ShadedCircleRenderer)dr;
+                
+                JPanel ep = new JPanel(new FlowLayout());
+                
+                boolean layerEnabled = map.isLayerEnabled(ds);
+                
+                final JToggleButton showEvents = new JToggleButton("Show Events", layerEnabled);
+                ep.add(showEvents);
+
+                final JFloatSlider js = new JFloatSlider(scr.getScale(), scr.getMinScale(), scr.getMaxScale(), JSlider.HORIZONTAL);
+                js.setEnabled(layerEnabled);
+                js.addChangeListener(new ChangeListener() {
+
+                    @Override
+                    public void stateChanged(ChangeEvent e) {
+                        new Thread(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                scr.setScale(js.value());
+                                map.redraw();
+                            }
+
+                        }).start();
+                    }
+                    
+                });
+                ep.add(js);
+
+                showEvents.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        map.setLayerEnabled(ds, showEvents.isSelected());
+                        js.setEnabled(showEvents.isSelected());
+                    }                
+                });
+                
+                ep.setAlignmentX(LEFT_ALIGNMENT);
+                add(ep);
+                
+            } 
         }
         
     }
@@ -65,6 +166,8 @@ public class ControlPanel extends JPanel {
     public ControlPanel(MapPanel mp, Environment d) {
         super(new BorderLayout());
 
+        this.map = mp;
+        
         JPanel categoriesPanel = new JPanel();
         categoriesPanel.setLayout(new BoxLayout(categoriesPanel, BoxLayout.PAGE_AXIS));
 
@@ -74,20 +177,21 @@ public class ControlPanel extends JPanel {
 
             final JPanel cSub = new JPanel();
             int indent = 15;
-            int spacing = 15;
-            cSub.setBorder(new EmptyBorder(0, indent, spacing, 0));
+            int spacing = 5;
+            cSub.setBorder(new EmptyBorder(spacing, indent, spacing, 0));
             cSub.setLayout(new BoxLayout(cSub, BoxLayout.PAGE_AXIS));
             {
                 for (Data ds : d.getSources(s)) {
-                    cSub.add(new DataSourcePanel(ds));                    
+                    DataSourcePanel dsp = new DataSourcePanel(map, ds);
+                    dsp.setBorder(new EmptyBorder(spacing, 0, 0, 0));
+                    cSub.add(dsp);
                 }
             }
             //cSub.add(new JLabel("options"));
             
-            cSub.setVisible(false);
 
 
-            JButton jb = new JButton(s);
+            JLabel jb = new JLabel(s);
 
             try {
                 ImageIcon ii = getIcon(d.categoryIcon.get(s), categoryImageWidth, categoryImageHeight);
@@ -96,24 +200,20 @@ public class ControlPanel extends JPanel {
                 Logger.getLogger(ControlPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
 
-            jb.addActionListener(new ActionListener() {
 
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    cSub.setVisible(!cSub.isVisible());
-                }
-            });
-
+            c.setAlignmentX(JComponent.LEFT_ALIGNMENT);
             c.add(jb, BorderLayout.NORTH);
-            c.add(cSub, BorderLayout.SOUTH);
+            c.add(cSub, BorderLayout.CENTER);
             c.doLayout();
+
+            c.setBorder(BorderFactory.createLoweredBevelBorder());
 
             categoriesPanel.add(c);
         }
 
         categoriesPanel.add(Box.createVerticalBox());
 
-        add(categoriesPanel, BorderLayout.CENTER);
+        add(new JScrollPane(categoriesPanel), BorderLayout.CENTER);
 
         
         JPanel presetsPanel = new JPanel(new BorderLayout());

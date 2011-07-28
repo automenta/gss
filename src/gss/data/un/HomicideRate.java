@@ -4,9 +4,6 @@
  */
 package gss.data.un;
 
-import gov.nasa.worldwind.geom.Angle;
-import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.geom.Position;
 import gss.data.DataPointsList;
 import gss.Event;
 import gss.Event.RadialEvent;

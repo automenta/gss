@@ -6,6 +6,7 @@ package gss;
 
 import gss.geo.LocationsCache;
 import gss.data.DataEmpty;
+import gss.data.iaea.NuclearFacilities;
 import gss.data.un.HomicideRate;
 import java.io.IOException;
 import java.util.HashMap;
@@ -47,13 +48,14 @@ public class Environment {
         }));
         
         addSource(new DataEmpty("radnetTotalIsotopes", "Nuclear Isotope Concentration", "Pollution", "atom.png", "Total Isotope Concentration, bQ/M^3"));
-        addSource(new DataEmpty("nuclearFacilities", "Nuclear Facilities", "Pollution", "nuclear.png", "Number of Reactors"));
         
         addSource(new DataEmpty("earthquakesUSGS", "Earthquakes", "Natural Disasters", "quake.png", "Richter Magnitude"));
 
         addSource(new DataEmpty("lifeexpectancyWorldBank", "Life Expectancy", "Health", "people.png", "Years"));
 
         addSource(new HomicideRate(geo, getDataFile("UN_Homicide.csv") ));
+        
+        addSource(new NuclearFacilities(getDataFile("IAEA_Nuclear_Facilities.csv") ));
     }
     
     public String getDataFile(String filename) {
@@ -75,4 +77,10 @@ public class Environment {
         }
         return l;
     }
+
+    public List<Data> getSources() {
+        return sources;
+    }
+    
+    
 }
