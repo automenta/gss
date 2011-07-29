@@ -4,6 +4,7 @@
  */
 package gss;
 
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.globes.Globe;
 import gov.nasa.worldwind.util.measure.LengthMeasurer;
@@ -23,6 +24,9 @@ import java.util.logging.Logger;
 public class Intensity {
     private static final Logger logger = Logger.getLogger(Intensity.class.getName());
     
+    //in meters; lower values are more accurate but slower, higher more inaccurate but faster
+    public final static double maxSegmentLength = 600000.0;
+    
     public static double getIntensity(final Globe globe, final Position point, final Map<Data, DataInterest> dataInterest) {
         double total = 0;
         
@@ -30,10 +34,6 @@ public class Intensity {
         points.add(point);
         points.add(point);
         
-        final LengthMeasurer measurer = new LengthMeasurer();
-        measurer.setFollowTerrain(false);
-        measurer.setPositions(points);
-        //measurer.setPathType(WorldWind.LINEAR);
         
         for (Entry<Data,DataInterest> en : dataInterest.entrySet()) {
             Data d = en.getKey();            
@@ -55,9 +55,15 @@ public class Intensity {
                     
                     points.set(1, c);
                     
+                    final LengthMeasurer measurer = new LengthMeasurer();
+                    measurer.setFollowTerrain(false);
+                    measurer.setPositions(points);
+                    measurer.setPathType(WorldWind.LINEAR);
+                    measurer.setMaxSegmentLength(maxSegmentLength);
+                    
                     try {
-                        double dist = measurer.getLength(globe)/1000.0;
-                        double meas = dp.getRelativeMeasurement(e.getMeasurement());
+                        double dist = measurer.getLength(globe)/10000.0;
+                        double meas = /*dp.getRelativeMeasurement*/(e.getMeasurement());
 
                         if (dp.getProximityFunction() == ProximityFunction.Linear)
                             total += meas / (1.0 + dist);

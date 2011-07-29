@@ -23,7 +23,7 @@ public abstract class DataPoints extends Data {
         Linear, InverseSquare
     }
     
-    private ProximityFunction proximityFunction = ProximityFunction.InverseSquare;
+    private ProximityFunction proximityFunction = ProximityFunction.Linear;
     
     public DataPoints(String name, String category, String iconURL, String unit) {
         this(null, name, category, iconURL, unit);

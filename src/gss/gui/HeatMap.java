@@ -31,8 +31,8 @@ public class HeatMap {
     int maxDivisions = 32;
     int minDivisions = 3;
     
-    double elevation = 100000;
-    double verticalScale = 600000.0; //TODO make this dependent on eyePos.getAltitude()
+    double elevation = 60000;
+    double verticalScale = 100000.0; //TODO make this dependent on eyePos.getAltitude()
     double maxRadius = 2000000;
     private double opacity = 0.5;
     private Position lastCenterPos, lastEyePos;
@@ -56,7 +56,7 @@ public class HeatMap {
         super();
         
         asa = new AnalyticSurfaceAttributes();
-        asa.setDrawShadow(false);
+        asa.setDrawShadow(true);
         asa.setDrawOutline(true);
         asa.setInteriorOpacity(opacity);        
 
@@ -121,19 +121,21 @@ public class HeatMap {
 
         boolean regionChanged;
         if (lastCenterPos!=null) {
-            regionChanged = ((!lastEyePos.equals(eyePos)) || (!lastCenterPos.equals(centerPos)));                        
+            regionChanged = (/*(!lastEyePos.equals(eyePos)) ||*/ (!lastCenterPos.equals(centerPos)));                        
         }
         else
             regionChanged = true;
         
         if (!regionChanged) {
             if (divisions < maxDivisions) {
-                divisions++;
+                //scale divisions exponentially as refined
+                divisions = (int)(((double)divisions) * 1.5);
             }
         }
         else {
             divisions = minDivisions;
         }
+        if (divisions > maxDivisions) divisions = maxDivisions;
         
         boolean opacityChanged = (opacity!=lastOpacity);
         boolean divisionsChanged = (divisions!=lastDivisions);
@@ -202,7 +204,7 @@ public class HeatMap {
         intensities.clear();
         for (int col = 0; col < divisions; col++) {
             for (int row = 0; row < divisions; row++) {
-                final Position p = gridPositions[row][col];
+                final Position p = gridPositions[(divisions-1)-col][row];
                 
                 double i = map.computeIntensity(p);
                 
@@ -223,7 +225,7 @@ public class HeatMap {
             double d = intensities.get(i);
             float e = (float)((d - min) / (max-min));
 
-            float hue = e/5.0f;
+            float hue = (1.0f-e)/2.5f;
             float sat = 0.75f + 0.25f * e;
             float bri = 0.7f;
             float[] v = Color.getHSBColor(hue, sat, bri).getColorComponents(null); 

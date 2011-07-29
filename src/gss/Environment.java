@@ -53,7 +53,7 @@ public class Environment {
 
         addSource(new DataEmpty("lifeexpectancyWorldBank", "Life Expectancy", "Health", "people.png", "Years"));
 
-        addSource(new HomicideRate(geo, getDataFile("UN_Homicide.csv") ));
+        //addSource(new HomicideRate(geo, getDataFile("UN_Homicide.csv") ));
         
         addSource(new NuclearFacilities(getDataFile("IAEA_Nuclear_Facilities.csv") ));
     }
