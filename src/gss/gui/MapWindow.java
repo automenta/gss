@@ -9,21 +9,29 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JSplitPane;
+import javax.swing.UIManager;
 
 /**
  *
  * @author seh
  */
 public class MapWindow {
-
+    static {
+        try {             
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } 
+        catch (Exception e) {
+        }
+    }
+    
    public static void main(String[] args) {
         final JFrame jf = new JFrame("Global Survival System");
 
         final Environment env = new Environment();
         
-        int mapWidth = 800;
+        int mapWidth = 1000;
         int controlWidth = 200;
-        int height = 600;
+        int height = 850;
         
         final Dimension s = new Dimension(mapWidth, height);
         final MapPanel mp = new MapPanel(env, s);

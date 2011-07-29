@@ -19,6 +19,12 @@ public abstract class DataPoints extends Data {
     private boolean drawIcons = false;
     private boolean drawLabels = false;
 
+    public static enum ProximityFunction {
+        Linear, InverseSquare
+    }
+    
+    private ProximityFunction proximityFunction = ProximityFunction.InverseSquare;
+    
     public DataPoints(String name, String category, String iconURL, String unit) {
         this(null, name, category, iconURL, unit);
     }
@@ -44,9 +50,14 @@ public abstract class DataPoints extends Data {
     public void setDrawLabels(boolean drawLabels) {
         this.drawLabels = drawLabels;
     }
-    
-    
-    
+
+    public double getRelativeMeasurement(double measurement) {
+        return (measurement - getMinMeasurement()) / (getMaxMeasurement() - getMinMeasurement());
+    }
+
+    public ProximityFunction getProximityFunction() {
+        return proximityFunction;
+    }
     
     
 }

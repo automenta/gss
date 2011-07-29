@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -51,63 +52,112 @@ public class ControlPanel extends JPanel {
     public static String getIconPath(String s) {
         return "./media/icons/" + s;
     }
-    
+
     public static ImageIcon getIcon(String s, int w, int h) throws MalformedURLException {
         final URL u = new File(getIconPath(s)).toURL();
         ImageIcon ii = new ImageIcon(new ImageIcon(u).getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH));
         return ii;
     }
-    
+
     public static class JFloatSlider extends JSlider {
 
         public final static int MAXRESOLUTION = 1000;
         private final double maxValue;
         private final double minValue;
         private double dvalue;
-        
+
         public JFloatSlider(double value, double maxValue, double minValue, int orientation) {
             super(orientation, 0, MAXRESOLUTION, 0);
-            
+
+            setName("X");
             this.maxValue = maxValue;
             this.minValue = minValue;
-                        
-            setDoubleValue((double)value);
+
+            setDoubleValue((double) value);
         }
-        
+
         public int doubleToInt(double v) {
-            if (v > maxValue) v = maxValue;
-            if (v < minValue) v = minValue;
-            
-            return (int)((v - minValue) / (maxValue - minValue) * ((double)MAXRESOLUTION));
+            if (v > maxValue) {
+                v = maxValue;
+            }
+            if (v < minValue) {
+                v = minValue;
+            }
+
+            return (int) ((v - minValue) / (maxValue - minValue) * ((double) MAXRESOLUTION));
         }
-        
+
         public void setDoubleValue(double v) {
             this.dvalue = v;
             setValue(doubleToInt(dvalue));
         }
-        
+
         public double value() {
             int v = getValue();
-            return (1.0 - ((double)v)/((double)MAXRESOLUTION)) * (maxValue - minValue) + minValue;
+            return (1.0 - ((double) v) / ((double) MAXRESOLUTION)) * (maxValue - minValue) + minValue;
         }
-        
     }
     private final MapPanel map;
-        
-    public static class HeatmapPanel extends JPanel {
-        
-    }
-    
-    public static class DataSourcePanel extends JPanel {
 
-        public DataSourcePanel(final MapPanel map, final Data ds) {
+    public class HeatmapPanel extends JPanel {
+
+        public HeatmapPanel() {
             super();
-            
+
             BoxLayout bl = new BoxLayout(this, BoxLayout.PAGE_AXIS);
             setLayout(bl);
 
             setAlignmentX(LEFT_ALIGNMENT);
+
+            JPanel ep = new JPanel(new FlowLayout());
+
+            final HeatMap heatmap = map.getHeatMap();
             
+            boolean layerEnabled = heatmap.getLayer().isEnabled();
+
+            final JToggleButton showEvents = new JToggleButton("Analysis", layerEnabled);
+            ep.add(showEvents);
+
+            final JFloatSlider js = new JFloatSlider(heatmap.getOpacity(), 0, 1.0, JSlider.HORIZONTAL);
+            js.setEnabled(layerEnabled);
+            js.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            heatmap.setOpacity(js.value());
+                            map.redraw();
+                        }                        
+                    });
+                }
+            });
+            ep.add(js);
+
+            showEvents.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    heatmap.getLayer().setEnabled(showEvents.isSelected());
+                    js.setEnabled(showEvents.isSelected());
+                }
+            });
+
+            ep.setAlignmentX(LEFT_ALIGNMENT);
+            add(ep);
+        }
+    }
+
+    public static class DataSourcePanel extends JPanel {
+
+        public DataSourcePanel(final MapPanel map, final Data ds) {
+            super();
+
+            BoxLayout bl = new BoxLayout(this, BoxLayout.PAGE_AXIS);
+            setLayout(bl);
+
+            setAlignmentX(LEFT_ALIGNMENT);
+
             JLabel l = new JLabel(ds.name);
             try {
                 l.setIcon(getIcon(ds.iconURL, datasourceIconWidth, datasourceIconHeight));
@@ -115,16 +165,16 @@ public class ControlPanel extends JPanel {
                 Logger.getLogger(ControlPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
             add(l);
-            
+
             DataRenderer dr = map.dataRenderers.get(ds);
             if (dr instanceof ShadedCircleRenderer) {
-                final ShadedCircleRenderer scr = (ShadedCircleRenderer)dr;
-                
+                final ShadedCircleRenderer scr = (ShadedCircleRenderer) dr;
+
                 JPanel ep = new JPanel(new FlowLayout());
-                
+
                 boolean layerEnabled = map.isLayerEnabled(ds);
-                
-                final JToggleButton showEvents = new JToggleButton("Show Events", layerEnabled);
+
+                final JToggleButton showEvents = new JToggleButton("Plot", layerEnabled);
                 ep.add(showEvents);
 
                 final JFloatSlider js = new JFloatSlider(scr.getScale(), scr.getMinScale(), scr.getMaxScale(), JSlider.HORIZONTAL);
@@ -140,36 +190,37 @@ public class ControlPanel extends JPanel {
                                 scr.setScale(js.value());
                                 map.redraw();
                             }
-
                         }).start();
                     }
-                    
                 });
                 ep.add(js);
 
                 showEvents.addActionListener(new ActionListener() {
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         map.setLayerEnabled(ds, showEvents.isSelected());
                         js.setEnabled(showEvents.isSelected());
-                    }                
+                    }
                 });
-                
+
                 ep.setAlignmentX(LEFT_ALIGNMENT);
                 add(ep);
-                
-            } 
+
+            }
         }
-        
     }
-    
+
     public ControlPanel(MapPanel mp, Environment d) {
         super(new BorderLayout());
 
         this.map = mp;
-        
+
         JPanel categoriesPanel = new JPanel();
         categoriesPanel.setLayout(new BoxLayout(categoriesPanel, BoxLayout.PAGE_AXIS));
+        
+        HeatmapPanel hmp = new HeatmapPanel();
+        categoriesPanel.add(hmp);
 
         for (String s : d.categories) {
             JPanel c = new JPanel();
@@ -181,14 +232,13 @@ public class ControlPanel extends JPanel {
             cSub.setBorder(new EmptyBorder(spacing, indent, spacing, 0));
             cSub.setLayout(new BoxLayout(cSub, BoxLayout.PAGE_AXIS));
             {
+
                 for (Data ds : d.getSources(s)) {
                     DataSourcePanel dsp = new DataSourcePanel(map, ds);
                     dsp.setBorder(new EmptyBorder(spacing, 0, 0, 0));
                     cSub.add(dsp);
                 }
             }
-            //cSub.add(new JLabel("options"));
-            
 
 
             JLabel jb = new JLabel(s);
@@ -215,7 +265,7 @@ public class ControlPanel extends JPanel {
 
         add(new JScrollPane(categoriesPanel), BorderLayout.CENTER);
 
-        
+
         JPanel presetsPanel = new JPanel(new BorderLayout());
         {
             JComboBox jc = new JComboBox();
@@ -228,7 +278,7 @@ public class ControlPanel extends JPanel {
             presetsPanel.add(jc, BorderLayout.CENTER);
         }
         add(presetsPanel, BorderLayout.NORTH);
-        
+
         JPanel renderPanel = new JPanel(new BorderLayout());
         {
             JButton buyButton = new JButton("What may I need?");
