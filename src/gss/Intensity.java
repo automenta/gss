@@ -62,7 +62,9 @@ public class Intensity {
                     measurer.setMaxSegmentLength(maxSegmentLength);
                     
                     try {
-                        double dist = measurer.getLength(globe)/10000.0;
+                        //double radius = 10000.0;
+                        double radius = i.getScale();
+                        double dist = measurer.getLength(globe)/radius;
                         double meas = /*dp.getRelativeMeasurement*/(e.getMeasurement());
 
                         if (dp.getProximityFunction() == ProximityFunction.Linear)

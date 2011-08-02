@@ -11,10 +11,12 @@ package gss;
  */
 public class DataInterest {
     private double importance;
+    private double scale;
 
-    public DataInterest(double importance) {
+    public DataInterest(double importance, double scale) {
         super();
         setImportance(importance);
+        setScale(scale);
     }
     
     public double getImportance() {
@@ -24,5 +26,15 @@ public class DataInterest {
     public void setImportance(double importance) {
         this.importance = importance;
     }
+
+    public void setScale(double newScale) {
+        this.scale = newScale;
+    }
+
+    public double getScale() {
+        return scale;
+    }
+    
+    
     
 }

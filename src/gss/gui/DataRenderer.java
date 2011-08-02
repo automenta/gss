@@ -21,6 +21,7 @@ import gov.nasa.worldwind.render.SurfaceCircle;
 import gov.nasa.worldwind.render.SurfaceIcon;
 import gov.nasa.worldwind.render.UserFacingText;
 import gss.Data;
+import gss.DataInterest;
 import gss.data.DataPoints;
 import gss.Event;
 import gss.Event.RadialEvent;
@@ -133,27 +134,28 @@ public abstract class DataRenderer<D extends Data> {
     abstract public void render();
     
     public static class ShadedCircleRenderer extends DataRenderer<DataPoints> {
-        private double scale;
+        //private double scale;
         private double minScale, maxScale;
+        private final DataInterest interest;
                 
-        public ShadedCircleRenderer(DataPoints source, double scale, double minScale, double maxScale) {
+        public ShadedCircleRenderer(DataPoints source, DataInterest interest, double scale, double minScale, double maxScale) {
             super(source);
             
-            this.scale = scale;
+            this.interest = interest;
             this.minScale = minScale;
             this.maxScale = maxScale;            
             
         }
 
-        public void setScale(double scale) {
-            if (scale!=this.scale) {
-                this.scale = scale;
+        public void setScale(double newScale) {
+            if (newScale!=getScale()) {
+                interest.setScale(newScale);
                 update();
             }
         }
 
         public double getScale() {
-            return scale;
+            return interest.getScale();
         }
 
         public double getMinScale() {
@@ -176,7 +178,7 @@ public abstract class DataRenderer<D extends Data> {
                     //addCylinder(re.getCenter(), re.getMeasurement()*5000.0, re.getRadius() * scale);                    
                     
                     double m = source.getNormalizedMeasurement(re);
-                    SurfaceCircle sc = addSurfaceCircle(re.getCenter(), re.getRadius() * scale * (m + 0.5));
+                    SurfaceCircle sc = addSurfaceCircle(re.getCenter(), re.getRadius() * getScale() * (m / source.getMaxMeasurement()));
                     
                     BasicShapeAttributes a = new BasicShapeAttributes();
                     a.setDrawOutline(false);

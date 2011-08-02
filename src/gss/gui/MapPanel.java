@@ -40,8 +40,9 @@ public class MapPanel extends AppPanel {
         this.env = env;
         
         for (Data source : env.getSources()) {
+            DataInterest di = getInterest(source);
             if (source instanceof DataPoints)
-                addDataRenderer(new ShadedCircleRenderer((DataPoints)source, 130.0, 0, 300));
+                addDataRenderer(new ShadedCircleRenderer((DataPoints)source, di, 130.0, 0.01, 3000));
         }
         
         heatMap = new HeatMap(this);        
@@ -70,8 +71,6 @@ public class MapPanel extends AppPanel {
         dataLayers.put(dr.source, layer);
         insertBeforeCompass(layer);      
         
-        //TODO hack remove this when GUI controls are implemented
-        dataInterest.put(dr.source, new DataInterest(0.5));
     }
         
     public boolean isLayerEnabled(Data d) {
@@ -104,6 +103,15 @@ public class MapPanel extends AppPanel {
     public double computeIntensity(final Position p) {
         return Intensity.getIntensity(getWwd().getModel().getGlobe(), p, dataInterest);
         
+    }
+
+    DataInterest getInterest(Data ds) {        
+        DataInterest di = dataInterest.get(ds);
+        if (di == null) {
+            di = new DataInterest(0.5, 130.0);
+            dataInterest.put(ds, di);
+        }
+        return di;
     }
     
     

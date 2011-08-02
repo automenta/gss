@@ -5,6 +5,7 @@
 package gss.gui;
 
 import gss.Data;
+import gss.DataInterest;
 import gss.Environment;
 import gss.gui.DataRenderer.ShadedCircleRenderer;
 import java.awt.BorderLayout;
@@ -166,6 +167,7 @@ public class ControlPanel extends JPanel {
             }
             add(l);
 
+            DataInterest di = map.getInterest(ds);
             DataRenderer dr = map.dataRenderers.get(ds);
             if (dr instanceof ShadedCircleRenderer) {
                 final ShadedCircleRenderer scr = (ShadedCircleRenderer) dr;
@@ -177,7 +179,7 @@ public class ControlPanel extends JPanel {
                 final JToggleButton showEvents = new JToggleButton("Plot", layerEnabled);
                 ep.add(showEvents);
 
-                final JFloatSlider js = new JFloatSlider(scr.getScale(), scr.getMinScale(), scr.getMaxScale(), JSlider.HORIZONTAL);
+                final JFloatSlider js = new JFloatSlider(di.getScale(), scr.getMinScale(), scr.getMaxScale(), JSlider.HORIZONTAL);
                 js.setEnabled(layerEnabled);
                 js.addChangeListener(new ChangeListener() {
 
@@ -188,6 +190,7 @@ public class ControlPanel extends JPanel {
                             @Override
                             public void run() {
                                 scr.setScale(js.value());
+                                map.getHeatMap().setInterestsChanged();
                                 map.redraw();
                             }
                         }).start();

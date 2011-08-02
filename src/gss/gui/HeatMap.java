@@ -11,6 +11,7 @@ import gov.nasa.worldwind.geom.LatLon;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.geom.Sector;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.render.DrawContext;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -31,7 +32,7 @@ public class HeatMap {
     int maxDivisions = 32;
     int minDivisions = 3;
     
-    double elevation = 60000;
+    double elevation = 100000;
     double verticalScale = 100000.0; //TODO make this dependent on eyePos.getAltitude()
     double maxRadius = 2000000;
     private double opacity = 0.5;
@@ -179,7 +180,19 @@ public class HeatMap {
         }
         
         //TODO cache AnalyticSurface so it doesnt need recalculated
-        AnalyticSurface as = new AnalyticSurface(sector, elevation, divisions, divisions);
+        AnalyticSurface as = new AnalyticSurface(sector, elevation, divisions, divisions) {
+
+            @Override
+            public void render(DrawContext dc) {
+                try {
+                    super.render(dc);
+                }
+                catch (NullPointerException ne) {
+                    //????
+                }
+            }
+            
+        };
 
         as.setVerticalScale(verticalScale);
         //as.setClientLayer(heatmapLayer);
