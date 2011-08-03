@@ -6,6 +6,7 @@ package gss;
 
 import gss.geo.LocationsCache;
 import gss.data.DataEmpty;
+import gss.data.DataKML;
 import gss.data.iaea.NuclearFacilities;
 import gss.data.un.HomicideRate;
 import java.io.IOException;
@@ -53,9 +54,11 @@ public class Environment {
 
         addSource(new DataEmpty("lifeexpectancyWorldBank", "Life Expectancy", "Health", "people.png", "Years"));
 
-        //addSource(new HomicideRate(geo, getDataFile("UN_Homicide.csv") ));
+        addSource(new HomicideRate(geo, getDataFile("UN_Homicide.csv") ));
         
         addSource(new NuclearFacilities(getDataFile("IAEA_Nuclear_Facilities.csv") ));
+        
+        addSource(new DataKML("/work/survive/cache/epa_airquality.kml", "Air Quality", "Pollution", "icon.xyz", "Units"));
     }
     
     public String getDataFile(String filename) {

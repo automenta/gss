@@ -1,0 +1,25 @@
+TODO
+----
+
+Multithreaded getIntensity()
+
+Adjust HeatMap's area scale
+    --Currently it's fixed to 1.0
+    --Fix displayed altitude/elevation -- try to use relative to ground, so when zoomed it is close to the ground point
+
+Visualization of Combinations of Benefits/Threats
+    --Simple (+benefit,-threat) determining the HeatMap's shape and color?
+
+Implement "What May I Need?"
+
+Add KML Support as subclass of DataPoints
+    --display
+    --interpreting a KML document's its identified items as Data
+    
+    --add some example DataSet's
+
+Add Country-wide data as indicators at each of its major cities
+    --needs dataset of N largest cities on Earth, N >> C (C = # of countries)
+    --this will normalize datasets which are per-country by approximating a country's border shape by point sources of the major cities within its boundaries
+
+

@@ -28,26 +28,31 @@ public class Intensity {
     public final static double maxSegmentLength = 600000.0;
     
     public static double getIntensity(final Globe globe, final Position point, final Map<Data, DataInterest> dataInterest) {
-        double total = 0;
         
         final ArrayList<Position> points = new ArrayList(2);
         points.add(point);
         points.add(point);
         
+    
+        double grandTotal = 0;
         
         for (Entry<Data,DataInterest> en : dataInterest.entrySet()) {
             Data d = en.getKey();            
             DataInterest i = en.getValue();
             
+            if (i.getImportance() == 0)
+                continue;
+            
+            double total = 0;
             if (d instanceof DataPoints) {
                 DataPoints dp = (DataPoints)d;
                 
                 Iterator<Event> v = dp.iterateEvents();
                                 
                 while (v.hasNext()) {
-                    Event e = v.next();
+                    final Event e = v.next();
                     
-                    Position c = e.getCenter();
+                    final Position c = e.getCenter();
                     if (c == null) {
                         logger.severe(e + " has null getCenter()");
                         continue;
@@ -63,9 +68,9 @@ public class Intensity {
                     
                     try {
                         //double radius = 10000.0;
-                        double radius = i.getScale();
-                        double dist = measurer.getLength(globe)/radius;
-                        double meas = /*dp.getRelativeMeasurement*/(e.getMeasurement());
+                        final double radius = i.getScale();
+                        final double dist = measurer.getLength(globe)/radius;
+                        final double meas = /*dp.getRelativeMeasurement*/(e.getMeasurement());
 
                         if (dp.getProximityFunction() == ProximityFunction.Linear)
                             total += meas / (1.0 + dist);
@@ -78,7 +83,8 @@ public class Intensity {
                     
                 }
             }
+            grandTotal += total * i.getImportance();
         }
-        return total;
+        return grandTotal;
     }
 }

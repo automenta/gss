@@ -67,7 +67,7 @@ public class ControlPanel extends JPanel {
         private final double minValue;
         private double dvalue;
 
-        public JFloatSlider(double value, double maxValue, double minValue, int orientation) {
+        public JFloatSlider(double value, double minValue, double maxValue, int orientation) {
             super(orientation, 0, MAXRESOLUTION, 0);
 
             setName("X");
@@ -95,7 +95,7 @@ public class ControlPanel extends JPanel {
 
         public double value() {
             int v = getValue();
-            return (1.0 - ((double) v) / ((double) MAXRESOLUTION)) * (maxValue - minValue) + minValue;
+            return (((double) v) / ((double) MAXRESOLUTION)) * (maxValue - minValue) + minValue;
         }
     }
     private final MapPanel map;
@@ -167,21 +167,44 @@ public class ControlPanel extends JPanel {
             }
             add(l);
 
-            DataInterest di = map.getInterest(ds);
+            final DataInterest di = map.getInterest(ds);
+
+            boolean layerEnabled = map.isLayerEnabled(ds);
+
+            final JFloatSlider importanceSlider = new JFloatSlider(di.getImportance(), 0, 1.0, JSlider.HORIZONTAL);
+            importanceSlider.setEnabled(layerEnabled);
+            importanceSlider.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    new Thread(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            di.setImportance(importanceSlider.value());
+                            map.getHeatMap().setInterestsChanged();
+                            map.redraw();
+                        }
+                    }).start();
+                }
+            });
+            JPanel fep = new JPanel(new FlowLayout());
+            fep.add(importanceSlider);
+            add(fep);
+            
             DataRenderer dr = map.dataRenderers.get(ds);
             if (dr instanceof ShadedCircleRenderer) {
                 final ShadedCircleRenderer scr = (ShadedCircleRenderer) dr;
 
                 JPanel ep = new JPanel(new FlowLayout());
 
-                boolean layerEnabled = map.isLayerEnabled(ds);
 
                 final JToggleButton showEvents = new JToggleButton("Plot", layerEnabled);
                 ep.add(showEvents);
 
-                final JFloatSlider js = new JFloatSlider(di.getScale(), scr.getMinScale(), scr.getMaxScale(), JSlider.HORIZONTAL);
-                js.setEnabled(layerEnabled);
-                js.addChangeListener(new ChangeListener() {
+                final JFloatSlider scaleSlider = new JFloatSlider(di.getScale(), scr.getMinScale(), scr.getMaxScale(), JSlider.HORIZONTAL);
+                scaleSlider.setEnabled(layerEnabled);
+                scaleSlider.addChangeListener(new ChangeListener() {
 
                     @Override
                     public void stateChanged(ChangeEvent e) {
@@ -189,24 +212,24 @@ public class ControlPanel extends JPanel {
 
                             @Override
                             public void run() {
-                                scr.setScale(js.value());
+                                scr.setScale(scaleSlider.value());
                                 map.getHeatMap().setInterestsChanged();
                                 map.redraw();
                             }
                         }).start();
                     }
                 });
-                ep.add(js);
+                ep.add(scaleSlider);
 
                 showEvents.addActionListener(new ActionListener() {
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         map.setLayerEnabled(ds, showEvents.isSelected());
-                        js.setEnabled(showEvents.isSelected());
+                        scaleSlider.setEnabled(showEvents.isSelected());
                     }
                 });
-
+                
                 ep.setAlignmentX(LEFT_ALIGNMENT);
                 add(ep);
 

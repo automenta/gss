@@ -10,11 +10,13 @@ import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.ogc.kml.impl.KMLController;
 import gss.Data;
 import gss.DataInterest;
 import gss.data.DataPoints;
 import gss.Environment;
 import gss.Intensity;
+import gss.data.DataKML;
 import gss.gui.DataRenderer.ShadedCircleRenderer;
 import java.awt.Dimension;
 import java.util.HashMap;
@@ -41,11 +43,25 @@ public class MapPanel extends AppPanel {
         
         for (Data source : env.getSources()) {
             DataInterest di = getInterest(source);
-            if (source instanceof DataPoints)
+            
+            if (source instanceof DataKML) {
+                addKMLLayer((DataKML)source);
+            }
+            else if (source instanceof DataPoints) {
                 addDataRenderer(new ShadedCircleRenderer((DataPoints)source, di, 130.0, 0.01, 3000));
+            }
         }
         
         heatMap = new HeatMap(this);        
+    }
+    
+    protected void addKMLLayer(DataKML d) {
+        RenderableLayer rl = new RenderableLayer();
+        //TODO lazy-load and parse 'd' when rl becomes visible for first time
+        KMLController kmlController = new KMLController(d.root);
+        rl.addRenderable(kmlController);
+        
+        insertBeforeCompass(rl);
     }
     
     
