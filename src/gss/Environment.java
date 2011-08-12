@@ -58,7 +58,10 @@ public class Environment {
         
         addSource(new NuclearFacilities(getDataFile("IAEA_Nuclear_Facilities.csv") ));
         
-        addSource(new DataKML("/work/survive/cache/epa_airquality.kml", "Air Quality", "Pollution", "icon.xyz", "Units"));
+        /*
+            addSource(new DataKML("/work/survive/cache/epa_airquality.kml", "Air Quality", "Pollution", "icon.xyz", "Units"));
+        */
+      
     }
     
     public String getDataFile(String filename) {

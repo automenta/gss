@@ -9,6 +9,7 @@ import gss.DataInterest;
 import gss.Environment;
 import gss.gui.DataRenderer.ShadedCircleRenderer;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
@@ -59,45 +60,6 @@ public class ControlPanel extends JPanel {
         ImageIcon ii = new ImageIcon(new ImageIcon(u).getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH));
         return ii;
     }
-
-    public static class JFloatSlider extends JSlider {
-
-        public final static int MAXRESOLUTION = 1000;
-        private final double maxValue;
-        private final double minValue;
-        private double dvalue;
-
-        public JFloatSlider(double value, double minValue, double maxValue, int orientation) {
-            super(orientation, 0, MAXRESOLUTION, 0);
-
-            setName("X");
-            this.maxValue = maxValue;
-            this.minValue = minValue;
-
-            setDoubleValue((double) value);
-        }
-
-        public int doubleToInt(double v) {
-            if (v > maxValue) {
-                v = maxValue;
-            }
-            if (v < minValue) {
-                v = minValue;
-            }
-
-            return (int) ((v - minValue) / (maxValue - minValue) * ((double) MAXRESOLUTION));
-        }
-
-        public void setDoubleValue(double v) {
-            this.dvalue = v;
-            setValue(doubleToInt(dvalue));
-        }
-
-        public double value() {
-            int v = getValue();
-            return (((double) v) / ((double) MAXRESOLUTION)) * (maxValue - minValue) + minValue;
-        }
-    }
     private final MapPanel map;
 
     public class HeatmapPanel extends JPanel {
@@ -124,10 +86,10 @@ public class ControlPanel extends JPanel {
             js.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
+                    heatmap.setOpacity(js.value());
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            heatmap.setOpacity(js.value());
                             map.redraw();
                         }                        
                     });
@@ -189,6 +151,7 @@ public class ControlPanel extends JPanel {
                 }
             });
             JPanel fep = new JPanel(new FlowLayout());
+            fep.setOpaque(false);
             fep.add(importanceSlider);
             add(fep);
             
@@ -197,6 +160,7 @@ public class ControlPanel extends JPanel {
                 final ShadedCircleRenderer scr = (ShadedCircleRenderer) dr;
 
                 JPanel ep = new JPanel(new FlowLayout());
+                ep.setOpaque(false);
 
 
                 final JToggleButton showEvents = new JToggleButton("Plot", layerEnabled);
@@ -248,6 +212,8 @@ public class ControlPanel extends JPanel {
         HeatmapPanel hmp = new HeatmapPanel();
         categoriesPanel.add(hmp);
 
+        int ic = 0;
+        
         for (String s : d.categories) {
             JPanel c = new JPanel();
             c.setLayout(new BoxLayout(c, BoxLayout.PAGE_AXIS));
@@ -263,6 +229,8 @@ public class ControlPanel extends JPanel {
                     DataSourcePanel dsp = new DataSourcePanel(map, ds);
                     dsp.setBorder(new EmptyBorder(spacing, 0, 0, 0));
                     cSub.add(dsp);
+                                        
+                    dsp.setBackground((ic++) % 2 == 0 ? Color.WHITE : Color.LIGHT_GRAY);
                 }
             }
 

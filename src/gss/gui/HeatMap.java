@@ -4,6 +4,7 @@
  */
 package gss.gui;
 
+import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.examples.analytics.AnalyticSurface;
 import gov.nasa.worldwind.examples.analytics.AnalyticSurface.GridPointAttributes;
 import gov.nasa.worldwind.examples.analytics.AnalyticSurfaceAttributes;
@@ -30,7 +31,7 @@ public class HeatMap {
     
     int divisions = 2;
     int maxDivisions = 32;
-    int minDivisions = 3;
+    int minDivisions = 5;
     
     double elevation = 100000;
     double verticalScale = 100000.0; //TODO make this dependent on eyePos.getAltitude()
@@ -46,7 +47,8 @@ public class HeatMap {
     private List<GridPointAttributes> heatMapIntensities;
     private ArrayList<Double> intensities;
     private boolean running = true;
-    int updatePeriodMS = 50;
+    int updatePeriodMS = 30;
+    private boolean flat = true;
 
 //    public static void printTimeDifference(String label, long b1, long b2) {
 //        final double diff = ((double)(b2 - b1)) / 1.0e9;
@@ -59,7 +61,7 @@ public class HeatMap {
         asa = new AnalyticSurfaceAttributes();
         asa.setDrawShadow(true);
         asa.setDrawOutline(true);
-        asa.setInteriorOpacity(opacity);        
+        asa.setInteriorOpacity(opacity);                
 
         this.map = map;
 
@@ -194,6 +196,13 @@ public class HeatMap {
             
         };
 
+        if (isFlat()) {
+            as.setAltitudeMode(WorldWind.CLAMP_TO_GROUND);            
+        }
+        else {
+            as.setAltitudeMode(WorldWind.RELATIVE_TO_GROUND);           
+        }
+        
         as.setVerticalScale(verticalScale);
         //as.setClientLayer(heatmapLayer);
 
@@ -211,6 +220,10 @@ public class HeatMap {
         this.lastDivisions = divisions;
     }
 
+    public boolean isFlat() {
+        return flat;
+    }
+    
     private List<GridPointAttributes> getHeatmapValues(final Sector sector, final int divisions) {
         
         double min=0, max=0;

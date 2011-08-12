@@ -5,11 +5,15 @@
 package gss.gui;
 
 import gov.nasa.worldwind.examples.ApplicationTemplate.AppPanel;
+import gov.nasa.worldwind.examples.kml.KMLApplicationController;
+import gov.nasa.worldwind.examples.util.BalloonController;
+import gov.nasa.worldwind.examples.util.HotSpotController;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.CompassLayer;
 import gov.nasa.worldwind.layers.Layer;
 import gov.nasa.worldwind.layers.LayerList;
 import gov.nasa.worldwind.layers.RenderableLayer;
+import gov.nasa.worldwind.ogc.kml.KMLRoot;
 import gov.nasa.worldwind.ogc.kml.impl.KMLController;
 import gss.Data;
 import gss.DataInterest;
@@ -41,6 +45,32 @@ public class MapPanel extends AppPanel {
         super(d, true);                        
         this.env = env;
         
+        
+        {   
+                    // Add a controller to handle input events on the layer selector and on browser balloons.
+            /*this.hotSpotController = */ new HotSpotController(this.getWwd());
+
+            // Add a controller to handle common KML application events.
+            KMLApplicationController kmlAppController =  new KMLApplicationController(this.getWwd());
+
+            
+            // Add a controller to display balloons when placemarks are clicked. We override the method addDocumentLayer
+            // so that loading a KML document by clicking a KML balloon link displays an entry in the on-screen layer
+            // tree.
+            BalloonController balloonController = new BalloonController(this.getWwd())
+            {
+//                @Override
+//                protected void addDocumentLayer(KMLRoot document)
+//                {
+//                    addKMLLayer(document);
+//                }
+            };
+
+            // Give the KML app controller a reference to the BalloonController so that the app controller can open
+            // KML feature balloons when feature's are selected in the on-screen layer tree.
+            kmlAppController.setBalloonController(balloonController);
+    }
+            
         for (Data source : env.getSources()) {
             DataInterest di = getInterest(source);
             

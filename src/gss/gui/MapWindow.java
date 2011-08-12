@@ -25,6 +25,49 @@ public class MapWindow {
     }
     
    public static void main(String[] args) {
+
+        final Environment env = new Environment();
+        
+        int mapWidth = 1000;
+        int controlWidth = 200;
+        int height = 850;
+        
+        final Dimension s = new Dimension(mapWidth, height);
+        final MapPanel mp = new MapPanel(env, s);
+
+        {
+             ControlPanel cp = new ControlPanel(mp, env);           
+             
+             final JFrame jf = new JFrame("Control");
+            
+             jf.getContentPane().setLayout(new BorderLayout());                    
+
+             jf.setSize(controlWidth, height);
+             jf.getContentPane().add(cp);
+             jf.getContentPane().doLayout();
+             jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+             jf.setVisible(true);
+        }
+        
+        {
+                       
+            final JFrame jf = new JFrame("Global Survival System");
+            
+            jf.getContentPane().setLayout(new BorderLayout());                    
+
+            jf.setSize(mapWidth, height);
+            jf.getContentPane().add(mp);
+            jf.getContentPane().doLayout();
+            jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            jf.setVisible(true);
+           
+        }
+                    
+                        
+    }
+
+   //Integrated ControlPanel into right-side of map
+    public static void _main(String[] args) {
         final JFrame jf = new JFrame("Global Survival System");
 
         final Environment env = new Environment();
