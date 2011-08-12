@@ -2,11 +2,11 @@ PURPOSE
 ----
 The system that GSS attempts to model is one that:
 
- -Can calculate whether a complete manifest of needs can be satisfied by the ”available” resources -- illustrating how a community is likely to thrive or suffer.
+ -Can calculate whether a complete manifest of needs can be satisfied by the 'available' resources -- illustrating how a community is likely to thrive or suffer.
 
  -Can suggest alternate means of satisfying a more essential need, when shortages occur; for example, by substituting an alternate source of a nutrient.
 
- -Can attempt to provide a means of evacuation, If needs are not likely to be met
+ -Can attempt to provide a means of evacuation, if needs are not likely to be met
 
 
 Imagine a system that:
