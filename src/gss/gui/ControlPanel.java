@@ -229,8 +229,6 @@ public class ControlPanel extends JPanel {
                     DataSourcePanel dsp = new DataSourcePanel(map, ds);
                     dsp.setBorder(new EmptyBorder(spacing, 0, 0, 0));
                     cSub.add(dsp);
-                                        
-                    dsp.setBackground((ic++) % 2 == 0 ? Color.WHITE : Color.LIGHT_GRAY);
                 }
             }
 

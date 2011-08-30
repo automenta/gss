@@ -29,7 +29,7 @@ public class MapWindow {
         final Environment env = new Environment();
         
         int mapWidth = 1000;
-        int controlWidth = 200;
+        int controlWidth = 350;
         int height = 850;
         
         final Dimension s = new Dimension(mapWidth, height);
@@ -73,7 +73,7 @@ public class MapWindow {
         final Environment env = new Environment();
         
         int mapWidth = 1000;
-        int controlWidth = 200;
+        int controlWidth = 350;
         int height = 850;
         
         final Dimension s = new Dimension(mapWidth, height);
